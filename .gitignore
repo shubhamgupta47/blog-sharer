@@ -2,6 +2,8 @@
 /client/node_modules
 /server/node_modules
 
+# files
+next.config.js
 
 # misc
 .DS_Store

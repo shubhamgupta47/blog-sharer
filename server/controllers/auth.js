@@ -1,5 +1,3 @@
 exports.register = (req, res) => {
-  res.json({
-    data: "hello...",
-  });
+  console.log("REQUEST BODY: ", req.body);
 };

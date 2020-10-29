@@ -1,5 +1,5 @@
 {
-  "name": "tutorial-collections",
+  "name": "blog-sharer",
   "version": "1.0.0",
   "description": "An application to submit links of various tutorials available online",
   "main": "index.js",

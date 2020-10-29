@@ -5,11 +5,21 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-//import routes
-const authRoutes = require("./routes/auth");
-
 // creating app instance
 const app = express();
+
+// db connection
+mongoose
+  .connect(process.env.DATABASE_CLOUD, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+  .then(() => console.log("DB connected..."))
+  .catch((err) => console.log(err));
+
+//import routes
+const authRoutes = require("./routes/auth");
 
 //app middlewares
 app.use(morgan("dev"));

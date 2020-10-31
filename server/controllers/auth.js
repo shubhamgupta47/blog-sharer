@@ -14,6 +14,9 @@ AWS.config.update({
 
 const ses = new AWS.SES({ apiVersion: "2010-12-01" });
 
+/**
+ * REGISTER
+ */
 exports.register = (req, res) => {
   const { name, email, password } = req.body;
 
@@ -68,6 +71,9 @@ exports.register = (req, res) => {
   });
 };
 
+/**
+ * ACTIVATE
+ */
 exports.registerActivate = (req, res) => {
   const { token } = req.body;
 
@@ -104,6 +110,44 @@ exports.registerActivate = (req, res) => {
           message: "Registration successful. You can now login",
         });
       });
+    });
+  });
+};
+
+/**
+ * LOGIN
+ */
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).exec((err, user) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Something went wrong. Please try again",
+      });
+    }
+    if (!user) {
+      return res.status(404).json({
+        error:
+          "The account with this email was not found. Please create a new one.",
+      });
+    }
+
+    // authenticate
+    if (!user.authenticate(password)) {
+      return res.status(400).json({
+        error: "Email and password don't match. Please try again.",
+      });
+    }
+
+    // generate token and send to client
+    const { _id, name, email, role } = user;
+    const token = jwt.sign({ _id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    return res.json({
+      token,
+      user: { _id, name, email, role },
     });
   });
 };

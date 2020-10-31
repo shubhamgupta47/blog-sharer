@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
   );
 
   const nav = () => (
-    <ul className="nav nav-tabs bg-dark">
+    <ul className="nav nav-tabs bg-primary">
       <li className="nav-item">
         <Link href="/">
           <a className="nav-link text-white">Home</a>

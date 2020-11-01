@@ -3,6 +3,7 @@ import Link from "next/link";
 import Router from "next/router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { getUserInfo, logout } from "../helpers/auth";
 // import "../public/static/css/styles.css";
 
 Router.onRouteChangeStart = (url) => NProgress.start();
@@ -10,6 +11,7 @@ Router.onRouteChangeComplete = (url) => NProgress.done();
 Router.onRouteChangeError = (url) => NProgress.done();
 
 const Layout = ({ children }) => {
+  const loggedInUserInfo = getUserInfo();
   const head = () => (
     <Head>
       <link
@@ -35,16 +37,41 @@ const Layout = ({ children }) => {
           <a className="nav-link text-white">Home</a>
         </Link>
       </li>
-      <li className="nav-item">
-        <Link href="/login">
-          <a className="nav-link text-white">Login</a>
-        </Link>
-      </li>
-      <li className="nav-item">
-        <Link href="/register">
-          <a className="nav-link text-white">Register</a>
-        </Link>
-      </li>
+      {!loggedInUserInfo && (
+        <>
+          <li className="nav-item">
+            <Link href="/login">
+              <a className="nav-link text-white">Login</a>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link href="/register">
+              <a className="nav-link text-white">Register</a>
+            </Link>
+          </li>
+        </>
+      )}
+      {loggedInUserInfo && loggedInUserInfo.role === "admin" && (
+        <li className="nav-item ml-auto">
+          <Link href="/admin">
+            <a className="nav-link text-white">{loggedInUserInfo.name}</a>
+          </Link>
+        </li>
+      )}
+      {loggedInUserInfo && loggedInUserInfo.role === "subscriber" && (
+        <li className="nav-item ml-auto">
+          <Link href="/user">
+            <a className="nav-link text-white">{loggedInUserInfo.name}</a>
+          </Link>
+        </li>
+      )}
+      {loggedInUserInfo && (
+        <li className="nav-item">
+          <a onClick={logout} href="#" className="nav-link text-white">
+            Logout
+          </a>
+        </li>
+      )}
     </ul>
   );
 

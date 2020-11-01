@@ -1,7 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Layout from "../components/Layout";
+import { getUserInfo } from "../helpers/auth";
 import { showErrorMessage, showSuccessMessage } from "../helpers/alerts";
+import Router from "next/router";
+
+const redirectTo = () => {
+  const isAuth = getUserInfo();
+  if (isAuth) {
+    return isAuth.role === "admin"
+      ? Router.push("/admin")
+      : Router.push("/user");
+  }
+  return;
+};
 
 const Register = () => {
   const [state, setState] = useState({
@@ -12,6 +24,12 @@ const Register = () => {
     success: "",
     buttonText: "Register",
   });
+
+  useEffect(() => {
+    redirectTo();
+  }, []);
+
+  const isAuth = getUserInfo();
 
   const { name, email, password, error, success, buttonText } = state;
 
@@ -30,7 +48,7 @@ const Register = () => {
     e.preventDefault();
     setState({ ...state, buttonText: "Registering" });
     axios
-      .post("http://localhost:8000/api/register", {
+      .post(`${API}/register`, {
         name,
         email,
         password,
@@ -88,6 +106,7 @@ const Register = () => {
           placeholder="Enter password here"
         />
       </div>
+      <hr />
       <div className="form-group">
         <button className="btn btn-outline-primary">{buttonText}</button>
       </div>
@@ -96,14 +115,15 @@ const Register = () => {
 
   return (
     <Layout>
-      <div className="col-md-6 offset-md-3">
-        <h1>Register</h1>
-        <br />
-        {success && showSuccessMessage(success)}
-        {error && showErrorMessage(error)}
-        {registrationForm()}
-        <hr />
-      </div>
+      {process.browser && !isAuth && (
+        <div className="col-md-6 offset-md-3">
+          <h1>Register</h1>
+          <br />
+          {success && showSuccessMessage(success)}
+          {error && showErrorMessage(error)}
+          {registrationForm()}
+        </div>
+      )}
     </Layout>
   );
 };

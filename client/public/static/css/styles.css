@@ -1,5 +1,15 @@
 #nprogress .bar {
   height: 4px !important;
+  background-color: #20c997 !important;
+}
+
+#nprogress .bar .peg {
+  box-shadow: 0 0 10px #20c997, 0 0 5px #20c997 !important;
+}
+
+#nprogress .spinner .spinner-icon {
+  border-top-color: #20c997 !important;
+  border-left-color: #20c997 !important;
 }
 
 .nav a:hover {

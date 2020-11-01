@@ -1,6 +1,7 @@
 const AWS = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const shortId = require("shortid");
+const expressJwt = require("express-jwt");
 
 // relative imports
 const User = require("../models/user");
@@ -85,7 +86,7 @@ exports.registerActivate = (req, res) => {
     }
 
     const { name, email, password } = jwt.decode(token);
-    const username = shortId;
+    const username = shortId.generate();
 
     User.findOne({ email }).exec((err, user) => {
       if (user) {
@@ -149,5 +150,47 @@ exports.login = (req, res) => {
       token,
       user: { _id, name, email, role },
     });
+  });
+};
+
+// auth middleware
+
+exports.requiresSignIn = expressJwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ["sha1", "RS256", "HS256"],
+});
+
+exports.authMiddleware = (req, res, next) => {
+  const authUserId = req.user._id;
+
+  User.findOne({ _id: authUserId }).exec((err, user) => {
+    if (err || !user) {
+      res.status(400).json({
+        error: "User not found",
+      });
+    }
+
+    req.profile = user;
+    next();
+  });
+};
+
+exports.adminMiddleware = (req, res, next) => {
+  const adminUserId = req.user._id;
+  User.findOne({ _id: adminUserId }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: "User not found",
+      });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(401).json({
+        error: "You are not authorized to view this page.",
+      });
+    }
+
+    req.profile = user;
+    next();
   });
 };

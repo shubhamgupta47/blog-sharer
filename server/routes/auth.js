@@ -3,7 +3,12 @@ const express = require("express");
 const router = express.Router();
 
 //import from controllers
-const { register, registerActivate, login } = require("../controllers/auth");
+const {
+  register,
+  registerActivate,
+  login,
+  requiresSignIn,
+} = require("../controllers/auth");
 
 //import from validators
 const {

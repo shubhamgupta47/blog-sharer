@@ -3,6 +3,7 @@ import axios from "axios";
 import Layout from "../components/Layout";
 import { getUserInfo } from "../helpers/auth";
 import { showErrorMessage, showSuccessMessage } from "../helpers/alerts";
+import { API } from "../config";
 import Router from "next/router";
 
 const redirectTo = () => {

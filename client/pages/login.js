@@ -22,7 +22,7 @@ const redirectTo = () => {
 const Login = () => {
   const [state, setState] = useState({
     email: "",
-    password: "qwertyuiop",
+    password: "",
     error: "",
     success: "",
     buttonText: "Login",

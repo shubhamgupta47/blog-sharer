@@ -22,10 +22,35 @@ export const removeCookie = (key) => {
 
 // get from cookie such as stored token
 // needed while sending requests with auth tokens
-export const getCookie = (key) => {
-  if (process.browser) {
-    return cookie.get(key);
+export const getCookie = (key, req) => {
+  // if (process.browser) {
+  //   return cookie.get(key);
+  // }
+  return process.browser
+    ? getCookieFromBrowser(key)
+    : getCookieFromServer(key, req);
+};
+
+export const getCookieFromBrowser = (key) => {
+  return cookie.get(key);
+};
+
+export const getCookieFromServer = (key, req) => {
+  const cookieFromReq = req.headers.cookie;
+
+  if (!cookieFromReq) {
+    return;
   }
+
+  let token = cookieFromReq
+    .split(";")
+    .find((c) => c.trim().startsWith(`${key}=`));
+  if (!token) {
+    return;
+  }
+
+  let tokenValue = token.split("=")[1];
+  return tokenValue;
 };
 
 // save in localStorage

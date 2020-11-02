@@ -4,7 +4,6 @@ import Router from "next/router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { getUserInfo, logout } from "../helpers/auth";
-// import "../public/static/css/styles.css";
 
 Router.onRouteChangeStart = (url) => NProgress.start();
 Router.onRouteChangeComplete = (url) => NProgress.done();
@@ -39,7 +38,7 @@ const Layout = ({ children }) => {
       </li>
       {!loggedInUserInfo && (
         <>
-          <li className="nav-item">
+          <li className="nav-item ml-auto">
             <Link href="/login">
               <a className="nav-link text-white">Login</a>
             </Link>
@@ -52,22 +51,31 @@ const Layout = ({ children }) => {
         </>
       )}
       {loggedInUserInfo && loggedInUserInfo.role === "admin" && (
-        <li className="nav-item ml-auto">
+        <li suppressHydrationWarning={true} className="nav-item ml-auto">
           <Link href="/admin">
-            <a className="nav-link text-white">{loggedInUserInfo.name}</a>
+            <a suppressHydrationWarning={true} className="nav-link text-white">
+              {loggedInUserInfo.name}
+            </a>
           </Link>
         </li>
       )}
       {loggedInUserInfo && loggedInUserInfo.role === "subscriber" && (
-        <li className="nav-item ml-auto">
+        <li suppressHydrationWarning={true} className="nav-item ml-auto">
           <Link href="/user">
-            <a className="nav-link text-white">{loggedInUserInfo.name}</a>
+            <a suppressHydrationWarning={true} className="nav-link text-white">
+              {loggedInUserInfo.name}
+            </a>
           </Link>
         </li>
       )}
       {loggedInUserInfo && (
         <li className="nav-item">
-          <a onClick={logout} href="#" className="nav-link text-white">
+          <a
+            onClick={logout}
+            href="#"
+            className="nav-link text-white"
+            suppressHydrationWarning={true}
+          >
             Logout
           </a>
         </li>
@@ -79,7 +87,9 @@ const Layout = ({ children }) => {
     <React.Fragment>
       {head()}
       {nav()}
-      <div className="container pt-5 pb-5">{children}</div>
+      <div suppressHydrationWarning={true} className="container pt-5 pb-5">
+        {children}
+      </div>
     </React.Fragment>
   );
 };

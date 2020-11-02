@@ -1,7 +1,6 @@
 import Layout from "../../components/Layout";
+import withUser from "../withUser";
 
-const User = () => {
-  return <Layout>User page</Layout>;
-};
+const User = ({ user }) => <Layout>{JSON.stringify(user)}</Layout>;
 
-export default User;
+export default withUser(User);

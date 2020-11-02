@@ -6,6 +6,8 @@ import { showErrorMessage, showSuccessMessage } from "../../../helpers/alerts";
 import { API } from "../../../config";
 import Layout from "../../../components/Layout";
 
+// We need parameters from the route so we have withRouter
+
 const ActivateAccount = ({ router }) => {
   const [state, setState] = useState({
     name: "",

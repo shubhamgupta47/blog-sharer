@@ -2,10 +2,14 @@ const AWS = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const shortId = require("shortid");
 const expressJwt = require("express-jwt");
+const _ = require("lodash");
 
 // relative imports
 const User = require("../models/user");
-const { registerEmailParams } = require("../helpers/email");
+const {
+  registerEmailParams,
+  forgotPasswordParams,
+} = require("../helpers/email");
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -193,4 +197,91 @@ exports.adminMiddleware = (req, res, next) => {
     req.profile = user;
     next();
   });
+};
+
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body;
+
+  User.findOne({ email }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(404).json({
+        error: "user for found",
+      });
+    }
+
+    const token = jwt.sign(
+      { name: user.name },
+      process.env.JWT_RESET_PASSWORD,
+      { expiresIn: "10m" }
+    );
+
+    // send email
+    const params = forgotPasswordParams(email, token);
+
+    return user.updateOne({ resetPasswordLink: token }, (err, success) => {
+      if (err) {
+        return res.status(400).json({
+          error: "Password reset failed. Try again in a few minutes",
+        });
+      }
+      const sendEmail = ses.sendEmail(params).promise();
+      sendEmail
+        .then((data) => {
+          return res.json({
+            message: "email with password reset link has been sent",
+            data,
+          });
+        })
+        .catch((error) => {
+          return res.status(400).json({
+            error,
+            message: "something went wrong",
+          });
+        });
+    });
+  });
+};
+
+exports.resetPassword = (req, res) => {
+  const { resetPasswordLink, newPassword } = req.body;
+  if (resetPasswordLink) {
+    jwt.verify(
+      resetPasswordLink,
+      process.env.JWT_RESET_PASSWORD,
+      (err, success) => {
+        if (err) {
+          return res.status(400).json({
+            error: "Link expired. try again",
+          });
+          //
+        }
+        User.findOne({ resetPasswordLink }).exec((err, user) => {
+          if (err || !user) {
+            return res.status(400).json({
+              error: "invalid token. try again",
+            });
+          }
+
+          const updatedFields = {
+            password: newPassword,
+            resetPasswordLink: "",
+          };
+
+          user = _.extend(user, updatedFields);
+
+          user.save((err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: "Password reset failed. Try again.",
+              });
+            }
+
+            return res.json({
+              message: "Reset successful. You can now login with new password.",
+            });
+          });
+        });
+      }
+    );
+  }
 };
